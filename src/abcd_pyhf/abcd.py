@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pyhf
 import pyhf.contrib.viz.brazil
 
-from pyhf_util import signal_region, poi_name, signal_uncertainty_name, bkg_normalization_name, create_model, get_data, get_par_bounds, fixed_poi_fit_scan, hypotest_scan, poi_upper_limit
+from .pyhf_util import signal_region, poi_name, signal_uncertainty_name, bkg_normalization_name, create_model, get_data, get_par_bounds, fixed_poi_fit_scan, hypotest_scan, poi_upper_limit
 
 
 pyhf.set_backend('numpy', 'minuit')
