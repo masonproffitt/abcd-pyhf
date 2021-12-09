@@ -52,7 +52,6 @@ class ABCD:
     def fixed_params(self):
         return self.model.config.suggested_fixed()
 
-    @property
     def bkg_only_fit(self):
         pars = pyhf.infer.mle.fixed_poi_fit(poi_val=0,
                                             data=self.data,
@@ -63,7 +62,6 @@ class ABCD:
                                             return_uncertainties=True)
         return pars
 
-    @property
     def fit(self):
         pars = pyhf.infer.mle.fit(data=self.data,
                                   pdf=self.model,
@@ -73,11 +71,9 @@ class ABCD:
                                   return_uncertainties=True)
         return pars
 
-    @property
     def bkg_only_signal_region_estimate(self):
         return tuple(self.bkg_only_fit[self.model.config.par_order.index(bkg_normalization_name)])
 
-    @property
     def _twice_nll_scan(self):
         if not hasattr(self, '_twice_nll_scan_result'):
             poi_values, pars_set = fixed_poi_fit_scan(self.data, self.model, self.init_pars, self.par_bounds, self.fixed_params)
@@ -86,11 +82,9 @@ class ABCD:
             setattr(self, '_twice_nll_scan_result', (poi_values, np.array([pyhf.infer.mle.twice_nll(pars, self.data, self.model) - best_fit_twice_nll for pars in pars_set])))
         return getattr(self, '_twice_nll_scan_result')
 
-    @property
     def twice_nll(self):
         return self._twice_nll_scan
 
-    @property
     def twice_nll_plot(self):
         plt.xlabel(r'$\mu$')
         plt.xlim(0, self.par_bounds[self.model.config.par_names().index(poi_name)][1])
@@ -117,30 +111,24 @@ class ABCD:
     def q0_p_value(self):
                 return pyhf.infer.hypotest(0, self.data, self.model, self.init_pars, self.par_bounds, self.fixed_params, test_stat='q0')
 
-    @property
     def _hypotest_scan(self):
         if not hasattr(self, '_hypotest_scan_result'):
             setattr(self, '_hypotest_scan_result', hypotest_scan(self.data, self.model, self.init_pars, self.par_bounds, self.fixed_params, return_tail_probs=True, return_expected_set=True))
         return getattr(self, '_hypotest_scan_result')
 
-    @property
     def clsb(self):
         return self._hypotest_scan[0], self._hypotest_scan[2][0]
 
-    @property
     def clb(self):
         return self._hypotest_scan[0], self._hypotest_scan[2][1]
 
-    @property
     def cls(self):
         return self._hypotest_scan[0], self._hypotest_scan[1], self._hypotest_scan[3]
 
-    @property
     def upper_limit(self, cl=0.95):
         poi, cls_observed, cls_expected_set = self.cls
         return poi_upper_limit(poi, cls_observed), [poi_upper_limit(poi, cls_expected) for cls_expected in cls_expected_set]
 
-    @property
     def brazil_plot(self):
         mu, cls_observed, cls_expected_set = self.cls
         results = list(zip(cls_observed, cls_expected_set.T))
