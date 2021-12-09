@@ -93,24 +93,6 @@ class ABCD:
         poi_values, twice_nll_values = self.twice_nll()
         return plt.plot(poi_values, twice_nll_values)[0]
 
-    def signal_region_yield_p_value(self, signal_region_yield=None):
-        if signal_region_yield is None:
-            signal_region_yield = self.observed_yields[signal_region]
-        rng = np.random.default_rng()
-        n_samples = 1000000
-        size = 100
-        rates = rng.normal(*self.bkg_only_signal_region_estimate(), size=n_samples)
-        running_total = 0
-        for rate in rates:
-            if rate <= 0:
-                pass
-            else:
-                running_total += np.sum(rng.poisson(rate, size=size) >= signal_region_yield)
-        return running_total / (n_samples * size)
-
-    def q0_p_value(self):
-                return pyhf.infer.hypotest(0, self.data, self.model, self.init_pars, self.par_bounds, self.fixed_params, test_stat='q0')
-
     def _hypotest_scan(self):
         if not hasattr(self, '_hypotest_scan_result'):
             setattr(self, '_hypotest_scan_result', hypotest_scan(self.data, self.model, self.init_pars, self.par_bounds, self.fixed_params, return_tail_probs=True, return_expected_set=True))
