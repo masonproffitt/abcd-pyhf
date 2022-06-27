@@ -98,18 +98,18 @@ def get_par_bounds(observed_yields, model):
         / observed_yields[control_regions[2]]
     )
     bkg_scale_factor_1_estimate = (
-        observed_yields[control_regions[0]]
-        / background_normalization_estimate
+        observed_yields[control_regions[0]] / background_normalization_estimate
     )
     bkg_scale_factor_2_estimate = (
-        observed_yields[control_regions[1]]
-        / background_normalization_estimate
+        observed_yields[control_regions[1]] / background_normalization_estimate
     )
-    if signal_region in observed_yields and observed_yields[signal_region] > background_normalization_estimate:
-        background_normalization_max = (
-           observed_yields[signal_region]
-            + 5 * math.sqrt(observed_yields[signal_region])
-        )
+    if (
+        signal_region in observed_yields
+        and observed_yields[signal_region] > background_normalization_estimate
+    ):
+        background_normalization_max = observed_yields[
+            signal_region
+        ] + 5 * math.sqrt(observed_yields[signal_region])
     else:
         background_normalization_max = (
             background_normalization_estimate
