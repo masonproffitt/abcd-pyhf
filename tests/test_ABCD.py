@@ -152,3 +152,11 @@ def test_upper_limit():
 def test_brazil_plot():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     abcd.brazil_plot()
+
+
+# https://github.com/masonproffitt/abcd-pyhf/issues/14
+def test_zero_events():
+    observed_yields_copy = observed_yields.copy()
+    observed_yields_copy['A'] = 0
+    abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
+    assert abcd.par_bounds is not None
