@@ -1,81 +1,109 @@
+import math
+
+import pyhf
+
 from abcd_pyhf import ABCD
 
 
-observed_yields = {'A': 1,
-                   'B': 2,
-                   'C': 3,
-                   'D': 4}
+observed_yields = {'A': 10, 'B': 20, 'C': 30, 'D': 60}
 
-signal_yields = {'A': 1,
-                 'B': 2,
-                 'C': 3,
-                 'D': 4}
+signal_yields = {'A': 35, 'B': 7, 'C': 5, 'D': 1}
 
 signal_uncertainty = 0.1
 
 
 def test_init():
-    ABCD(observed_yields, signal_yields, signal_uncertainty)
+    assert ABCD(observed_yields, signal_yields, signal_uncertainty) is not None
 
 
 def test_observed_yields():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.observed_yields
+    assert abcd.observed_yields == observed_yields
 
 
 def test_signal_yields():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.signal_yields
+    assert abcd.signal_yields == signal_yields
 
 
 def test_signal_uncertainty():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.signal_uncertainty
+    assert abcd.signal_uncertainty == signal_uncertainty
 
 
 def test_blinded():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.blinded
+    assert abcd.blinded is False
+    blinded_yields = observed_yields.copy()
+    del blinded_yields['A']
+    abcd_blinded = ABCD(blinded_yields, signal_yields, signal_uncertainty)
+    assert abcd_blinded.blinded is True
 
 
 def test_model():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.model
+    assert isinstance(abcd.model, pyhf.Model)
 
 
 def test_data():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.data
+    assert abcd.data is not None
 
 
 def test_init_pars():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.init_pars
+    assert abcd.init_pars is not None
 
 
 def test_par_bounds():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.par_bounds
+    assert abcd.par_bounds is not None
 
 
 def test_fixed_params():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.fixed_params
+    assert abcd.fixed_params is not None
 
 
 def test_bkg_only_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.bkg_only_fit()
+    bkg_only_fit = abcd.bkg_only_fit()
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
+    assert math.isclose(bkg_only_fit[2][0], observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        bkg_only_fit[3][0],
+        observed_yields['B'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
+    assert math.isclose(
+        bkg_only_fit[4][0],
+        observed_yields['C'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
 
 
 def test_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.fit()
+    fit = abcd.fit()
+    assert math.isclose(fit[0][0], 0, abs_tol=1e-1)
+    assert math.isclose(fit[1][0], 0, abs_tol=1e-1)
+    assert math.isclose(fit[2][0], observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        fit[3][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2
+    )
+    assert math.isclose(
+        fit[4][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2
+    )
 
 
 def test_bkg_only_signal_region_estimate():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.bkg_only_signal_region_estimate()
+    assert math.isclose(
+        abcd.bkg_only_signal_region_estimate()[0],
+        observed_yields['A'],
+        rel_tol=1e-2,
+    )
 
 
 def test_twice_nll_scan():
@@ -85,7 +113,7 @@ def test_twice_nll_scan():
 
 def test_twice_nll():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.twice_nll()
+    assert abcd.twice_nll() is not None
 
 
 def test_twice_nll_plot():
@@ -100,22 +128,25 @@ def test_hypotest_scan():
 
 def test_clsb():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.clsb()
+    assert abcd.clsb() is not None
 
 
 def test_clb():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.clb()
+    assert abcd.clb() is not None
 
 
 def test_cls():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.cls()
+    assert abcd.cls() is not None
 
 
 def test_upper_limit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.upper_limit()
+    observed_upper_limit, expected_upper_limit = abcd.upper_limit()
+    assert math.isclose(
+        observed_upper_limit, expected_upper_limit[2], rel_tol=1e-2
+    )
 
 
 def test_brazil_plot():
