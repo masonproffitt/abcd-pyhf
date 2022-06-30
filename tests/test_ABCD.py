@@ -5,15 +5,9 @@ import pyhf
 from abcd_pyhf import ABCD
 
 
-observed_yields = {'A': 10,
-                   'B': 20,
-                   'C': 30,
-                   'D': 60}
+observed_yields = {'A': 10, 'B': 20, 'C': 30, 'D': 60}
 
-signal_yields = {'A': 35,
-                 'B': 7,
-                 'C': 5,
-                 'D': 1}
+signal_yields = {'A': 35, 'B': 7, 'C': 5, 'D': 1}
 
 signal_uncertainty = 0.1
 
@@ -77,8 +71,16 @@ def test_bkg_only_fit():
     assert bkg_only_fit[0][0] == 0
     assert bkg_only_fit[1][0] == 0
     assert math.isclose(bkg_only_fit[2][0], observed_yields['A'], rel_tol=1e-2)
-    assert math.isclose(bkg_only_fit[3][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2)
-    assert math.isclose(bkg_only_fit[4][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        bkg_only_fit[3][0],
+        observed_yields['B'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
+    assert math.isclose(
+        bkg_only_fit[4][0],
+        observed_yields['C'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
 
 
 def test_fit():
@@ -87,13 +89,21 @@ def test_fit():
     assert math.isclose(fit[0][0], 0, abs_tol=1e-1)
     assert math.isclose(fit[1][0], 0, abs_tol=1e-1)
     assert math.isclose(fit[2][0], observed_yields['A'], rel_tol=1e-2)
-    assert math.isclose(fit[3][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2)
-    assert math.isclose(fit[4][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        fit[3][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2
+    )
+    assert math.isclose(
+        fit[4][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2
+    )
 
 
 def test_bkg_only_signal_region_estimate():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    assert math.isclose(abcd.bkg_only_signal_region_estimate()[0], observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        abcd.bkg_only_signal_region_estimate()[0],
+        observed_yields['A'],
+        rel_tol=1e-2,
+    )
 
 
 def test_twice_nll_scan():
@@ -134,7 +144,9 @@ def test_cls():
 def test_upper_limit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     observed_upper_limit, expected_upper_limit = abcd.upper_limit()
-    assert math.isclose(observed_upper_limit, expected_upper_limit[2], rel_tol=1e-2)
+    assert math.isclose(
+        observed_upper_limit, expected_upper_limit[2], rel_tol=1e-2
+    )
 
 
 def test_brazil_plot():
