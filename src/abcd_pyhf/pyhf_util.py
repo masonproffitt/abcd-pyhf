@@ -111,10 +111,13 @@ def get_par_bounds(observed_yields, model):
             signal_region
         ] + 5 * math.sqrt(observed_yields[signal_region])
     else:
-        background_normalization_max = max((
-            background_normalization_estimate
-            + 5 * math.sqrt(background_normalization_estimate)
-        ), 25)
+        background_normalization_max = max(
+            (
+                background_normalization_estimate
+                + 5 * math.sqrt(background_normalization_estimate)
+            ),
+            25,
+        )
     poi_max = math.ceil(background_normalization_max)
     par_bounds = model.config.suggested_bounds()
     par_bounds[model.config.par_order.index(poi_name)] = (0, poi_max)
