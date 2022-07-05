@@ -69,6 +69,31 @@ def test_fixed_params():
     assert abcd.fixed_params(True) is not None
 
 
+def test_fixed_poi_fit():
+    observed_yields_copy = observed_yields.copy()
+    observed_yields_copy['A'] += signal_yields['A']
+    observed_yields_copy['B'] += signal_yields['B']
+    observed_yields_copy['C'] += signal_yields['C']
+    observed_yields_copy['D'] += signal_yields['D']
+    abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
+    fixed_poi_fit = abcd._fixed_poi_fit(signal_yields['A'])
+    assert fixed_poi_fit[0][0] == signal_yields['A']
+    assert math.isclose(fixed_poi_fit[1][0], 0, abs_tol=1e-1)
+    assert math.isclose(
+        fixed_poi_fit[2][0], observed_yields['A'], rel_tol=1e-2
+    )
+    assert math.isclose(
+        fixed_poi_fit[3][0],
+        observed_yields['B'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
+    assert math.isclose(
+        fixed_poi_fit[4][0],
+        observed_yields['C'] / observed_yields['A'],
+        rel_tol=1e-2,
+    )
+
+
 def test_bkg_only_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()

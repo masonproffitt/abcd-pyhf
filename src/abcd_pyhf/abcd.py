@@ -74,6 +74,18 @@ class ABCD:
             fixed_params_array[signal_uncertainty_index] = True
         return fixed_params_array
 
+    def _fixed_poi_fit(self, poi_value):
+        pars = pyhf.infer.mle.fixed_poi_fit(
+            poi_value,
+            data=self.data,
+            pdf=self.model,
+            init_pars=self.init_pars,
+            par_bounds=self.par_bounds,
+            fixed_params=self.fixed_params(),
+            return_uncertainties=True,
+        )
+        return pars
+
     def bkg_only_fit(self):
         pars = pyhf.infer.mle.fixed_poi_fit(
             poi_val=0,
