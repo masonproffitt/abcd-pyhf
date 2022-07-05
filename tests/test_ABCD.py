@@ -62,14 +62,18 @@ def test_par_bounds():
 
 def test_fixed_params():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    assert abcd.fixed_params is not None
+    assert abcd.fixed_params() is not None
+    assert abcd.fixed_params(bkg_only=False) is not None
+    assert abcd.fixed_params(bkg_only=True) is not None
+    assert abcd.fixed_params(False) is not None
+    assert abcd.fixed_params(True) is not None
 
 
 def test_bkg_only_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert math.isclose(bkg_only_fit[0][0], 0, abs_tol=1e-6)
-    assert math.isclose(bkg_only_fit[1][0], 0, abs_tol=1e-6)
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
     assert math.isclose(bkg_only_fit[2][0], observed_yields['A'], rel_tol=1e-2)
     assert math.isclose(
         bkg_only_fit[3][0],
@@ -169,8 +173,8 @@ def test_bkg_only_fit_very_small_expected_mu_b():
     observed_yields_copy['D'] *= 1000
     abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert math.isclose(bkg_only_fit[0][0], 0, abs_tol=1e-6)
-    assert math.isclose(bkg_only_fit[1][0], 0, abs_tol=1e-6)
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
     assert math.isclose(
         bkg_only_fit[2][0], observed_yields_copy['A'], abs_tol=1e-1
     )
@@ -182,5 +186,43 @@ def test_bkg_only_fit_very_small_expected_mu_b():
     assert math.isclose(
         bkg_only_fit[4][0],
         observed_yields_copy['D'] / observed_yields_copy['B'],
+        rel_tol=1e-2,
+    )
+
+
+# https://github.com/masonproffitt/abcd-pyhf/issues/22
+def test_bkg_only_fit_special_case():
+    observed_yields_special_case = {
+        'A': 0,
+        'B': 15004,
+        'C': 441,
+        'D': 192036934,
+    }
+    signal_yields_special_case = {
+        'A': 0.13,
+        'B': 0.004,
+        'C': 0.00001,
+        'D': 0.00006,
+    }
+    signal_uncertainty_special_case = 0.02
+    abcd = ABCD(
+        observed_yields_special_case,
+        signal_yields_special_case,
+        signal_uncertainty_special_case,
+    )
+    bkg_only_fit = abcd.bkg_only_fit()
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
+    assert math.isclose(
+        bkg_only_fit[2][0], observed_yields_special_case['A'], abs_tol=1e-1
+    )
+    assert math.isclose(
+        bkg_only_fit[3][0],
+        observed_yields_special_case['D'] / observed_yields_special_case['C'],
+        rel_tol=1e-2,
+    )
+    assert math.isclose(
+        bkg_only_fit[4][0],
+        observed_yields_special_case['D'] / observed_yields_special_case['B'],
         rel_tol=1e-2,
     )
