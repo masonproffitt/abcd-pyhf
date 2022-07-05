@@ -7,12 +7,12 @@ import pyhf.contrib.viz.brazil
 from .pyhf_util import (
     signal_region,
     poi_name,
-    signal_uncertainty_name,
     bkg_normalization_name,
     create_model,
     get_data,
     get_init_pars,
     get_par_bounds,
+    get_fixed_params,
     fixed_poi_fit_scan,
     hypotest_scan,
     poi_upper_limit,
@@ -65,15 +65,7 @@ class ABCD:
         return get_par_bounds(self.observed_yields, self.model)
 
     def fixed_params(self, bkg_only=False):
-        fixed_params_array = self.model.config.suggested_fixed()
-        if bkg_only:
-            poi_index = self.model.config.par_names().index(poi_name)
-            fixed_params_array[poi_index] = True
-            signal_uncertainty_index = self.model.config.par_names().index(
-                signal_uncertainty_name
-            )
-            fixed_params_array[signal_uncertainty_index] = True
-        return fixed_params_array
+        return get_fixed_params(self.model, bkg_only=bkg_only)
 
     def _fixed_poi_fit(self, poi_value):
         pars = pyhf.infer.mle.fixed_poi_fit(

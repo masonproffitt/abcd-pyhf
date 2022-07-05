@@ -155,6 +155,13 @@ def get_par_bounds(observed_yields, model):
     return par_bounds
 
 
+def get_fixed_params(model, bkg_only=False):
+    fixed_params = model.config.suggested_fixed()
+    if bkg_only:
+        fixed_params[model.config.par_names().index(signal_uncertainty_name)] = True
+    return fixed_params
+
+
 def fixed_poi_fit_scan(
     data, model, init_pars, par_bounds, fixed_params, poi_values=None
 ):
