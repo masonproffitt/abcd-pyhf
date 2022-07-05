@@ -91,6 +91,25 @@ def get_data(observed_yields, model):
     return data
 
 
+def get_init_pars(observed_yields, model):
+    background_normalization_estimate = (
+        observed_yields[control_regions[0]]
+        * observed_yields[control_regions[1]]
+        / observed_yields[control_regions[2]]
+    )
+    bkg_scale_factor_1_estimate = (
+        observed_yields[control_regions[0]] / background_normalization_estimate
+    )
+    bkg_scale_factor_2_estimate = (
+        observed_yields[control_regions[1]] / background_normalization_estimate
+    )
+    init_pars = model.config.suggested_init()
+    init_pars[model.config.par_order.index(bkg_normalization_name)] = background_normalization_estimate
+    init_pars[model.config.par_order.index(bkg_scale_factor_1_name)] = bkg_scale_factor_1_estimate
+    init_pars[model.config.par_order.index(bkg_scale_factor_2_name)] = bkg_scale_factor_2_estimate
+    return init_pars
+
+
 def get_par_bounds(observed_yields, model):
     background_normalization_estimate = (
         observed_yields[control_regions[0]]

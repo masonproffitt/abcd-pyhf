@@ -11,6 +11,7 @@ from .pyhf_util import (
     bkg_normalization_name,
     create_model,
     get_data,
+    get_init_pars,
     get_par_bounds,
     fixed_poi_fit_scan,
     hypotest_scan,
@@ -57,7 +58,7 @@ class ABCD:
 
     @property
     def init_pars(self):
-        return self.model.config.suggested_init()
+        return get_init_pars(self.observed_yields, self.model)
 
     @property
     def par_bounds(self):
