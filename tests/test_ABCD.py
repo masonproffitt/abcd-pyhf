@@ -62,7 +62,11 @@ def test_par_bounds():
 
 def test_fixed_params():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    assert abcd.fixed_params is not None
+    assert abcd.fixed_params() is not None
+    assert abcd.fixed_params(bkg_only=False) is not None
+    assert abcd.fixed_params(bkg_only=True) is not None
+    assert abcd.fixed_params(False) is not None
+    assert abcd.fixed_params(True) is not None
 
 
 def test_bkg_only_fit():
