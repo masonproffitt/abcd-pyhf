@@ -68,8 +68,8 @@ def test_fixed_params():
 def test_bkg_only_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert math.isclose(bkg_only_fit[0][0], 0, abs_tol=1e-6)
-    assert math.isclose(bkg_only_fit[1][0], 0, abs_tol=1e-6)
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
     assert math.isclose(bkg_only_fit[2][0], observed_yields['A'], rel_tol=1e-2)
     assert math.isclose(
         bkg_only_fit[3][0],
@@ -169,8 +169,8 @@ def test_bkg_only_fit_very_small_expected_mu_b():
     observed_yields_copy['D'] *= 1000
     abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert math.isclose(bkg_only_fit[0][0], 0, abs_tol=1e-6)
-    assert math.isclose(bkg_only_fit[1][0], 0, abs_tol=1e-6)
+    assert bkg_only_fit[0][0] == 0
+    assert bkg_only_fit[1][0] == 0
     assert math.isclose(
         bkg_only_fit[2][0], observed_yields_copy['A'], abs_tol=1e-1
     )
