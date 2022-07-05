@@ -251,3 +251,26 @@ def test_bkg_only_fit_special_case():
         observed_yields_special_case['D'] / observed_yields_special_case['B'],
         rel_tol=1e-2,
     )
+
+
+# https://github.com/masonproffitt/abcd-pyhf/issues/25
+def test_fixed_poi_fit_special_case():
+    observed_yields_special_case = {
+        'A': 0,
+        'B': 15004,
+        'C': 441,
+        'D': 192036934,
+    }
+    signal_yields_special_case = {
+        'A': 0.13,
+        'B': 0.004,
+        'C': 0.00001,
+        'D': 0.00006,
+    }
+    signal_uncertainty_special_case = 0.02
+    abcd = ABCD(
+        observed_yields_special_case,
+        signal_yields_special_case,
+        signal_uncertainty_special_case,
+    )
+    assert abcd._fixed_poi_fit(4) is not None
