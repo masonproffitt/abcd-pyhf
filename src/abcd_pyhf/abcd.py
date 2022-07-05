@@ -68,7 +68,9 @@ class ABCD:
         if bkg_only:
             poi_index = self.model.config.par_names().index(poi_name)
             fixed_params_array[poi_index] = True
-            signal_uncertainty_index = self.model.config.par_names().index(signal_uncertainty_name)
+            signal_uncertainty_index = self.model.config.par_names().index(
+                signal_uncertainty_name
+            )
             fixed_params_array[signal_uncertainty_index] = True
         return fixed_params_array
 
