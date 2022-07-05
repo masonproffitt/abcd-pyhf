@@ -79,7 +79,9 @@ def test_fixed_poi_fit():
     fixed_poi_fit = abcd._fixed_poi_fit(signal_yields['A'])
     assert fixed_poi_fit[0][0] == signal_yields['A']
     assert math.isclose(fixed_poi_fit[1][0], 0, abs_tol=1e-1)
-    assert math.isclose(fixed_poi_fit[2][0], observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(
+        fixed_poi_fit[2][0], observed_yields['A'], rel_tol=1e-2
+    )
     assert math.isclose(
         fixed_poi_fit[3][0],
         observed_yields['B'] / observed_yields['A'],
