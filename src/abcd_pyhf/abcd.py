@@ -1,3 +1,5 @@
+import functools
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -154,44 +156,41 @@ class ABCD:
         poi_values, twice_nll_values = self.twice_nll()
         return plt.plot(poi_values, twice_nll_values)[0]
 
-    def _hypotest_scan(self):
-        if not hasattr(self, '_hypotest_scan_result'):
-            setattr(
-                self,
-                '_hypotest_scan_result',
-                hypotest_scan(
-                    self.data,
-                    self.model,
-                    self.init_pars,
-                    self.par_bounds,
-                    self.fixed_params(),
-                    return_tail_probs=True,
-                    return_expected_set=True,
-                ),
-            )
-        return getattr(self, '_hypotest_scan_result')
-
-    def clsb(self):
-        return self._hypotest_scan()[0], self._hypotest_scan()[2][0]
-
-    def clb(self):
-        return self._hypotest_scan()[0], self._hypotest_scan()[2][1]
-
-    def cls(self):
-        return (
-            self._hypotest_scan()[0],
-            self._hypotest_scan()[1],
-            self._hypotest_scan()[3],
+    @functools.lru_cache()
+    def _hypotest_scan(self, calctype='asymptotics', **kwargs):
+        return hypotest_scan(
+            self.data,
+            self.model,
+            self.init_pars,
+            self.par_bounds,
+            self.fixed_params(),
+            calctype=calctype,
+            return_tail_probs=True,
+            return_expected_set=True,
+            **kwargs
         )
 
-    def upper_limit(self, cl=0.95):
-        poi, cls_observed, cls_expected_set = self.cls()
+    def clsb(self, calctype='asymptotics', **kwargs):
+        return self._hypotest_scan(calctype=calctype, **kwargs)[0], self._hypotest_scan(calctype=calctype, **kwargs)[2][0]
+
+    def clb(self, calctype='asymptotics', **kwargs):
+        return self._hypotest_scan(calctype=calctype, **kwargs)[0], self._hypotest_scan(calctype=calctype, **kwargs)[2][1]
+
+    def cls(self, calctype='asymptotics', **kwargs):
+        return (
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[1],
+            self._hypotest_scan(calctype=calctype, **kwargs)[3],
+        )
+
+    def upper_limit(self, cl=0.95, calctype='asymptotics', **kwargs):
+        poi, cls_observed, cls_expected_set = self.cls(calctype=calctype, **kwargs)
         return poi_upper_limit(poi, cls_observed), [
             poi_upper_limit(poi, cls_expected)
             for cls_expected in cls_expected_set
         ]
 
-    def brazil_plot(self):
-        mu, cls_observed, cls_expected_set = self.cls()
+    def brazil_plot(self, calctype='asymptotics', **kwargs):
+        mu, cls_observed, cls_expected_set = self.cls(calctype=calctype, **kwargs)
         results = list(zip(cls_observed, cls_expected_set.T))
         pyhf.contrib.viz.brazil.plot_results(mu, results)

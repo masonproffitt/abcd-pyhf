@@ -5,6 +5,8 @@ import numpy as np
 
 import pyhf
 
+from .pool_utils import starmap_with_kwargs
+
 
 signal_region = 'A'
 control_regions = ['B', 'C', 'D']
@@ -141,7 +143,7 @@ def get_par_bounds(observed_yields, model):
                 background_normalization_estimate
                 + 5 * math.sqrt(background_normalization_estimate)
             ),
-            25,
+            5,
         )
     poi_max = math.ceil(background_normalization_max)
     par_bounds = model.config.suggested_bounds()
@@ -196,6 +198,7 @@ def hypotest_scan(
     return_tail_probs=False,
     return_expected=False,
     return_expected_set=False,
+    **kwargs
 ):
     if poi_values is None:
         poi_max = par_bounds[model.config.par_order.index(poi_name)][1]
@@ -211,11 +214,10 @@ def hypotest_scan(
         return_expected,
         return_expected_set,
     ]
+    starmap_args = zip(poi_values, *[[arg] * len(poi_values) for arg in other_args])
+    starmap_kwargs = [kwargs] * len(poi_values)
     with multiprocessing.pool.Pool() as pool:
-        results = pool.starmap(
-            pyhf.infer.hypotest,
-            zip(poi_values, *[[arg] * len(poi_values) for arg in other_args]),
-        )
+        results = starmap_with_kwargs(pool, pyhf.infer.hypotest, starmap_args, starmap_kwargs)
     cls_observed = []
     if return_tail_probs:
         tail_probs = []
