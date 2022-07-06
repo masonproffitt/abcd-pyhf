@@ -265,3 +265,11 @@ def test_fixed_poi_fit_special_case():
         signal_uncertainty_special_case,
     )
     assert abcd._fixed_poi_fit(4) is not None
+
+
+def test_toys():
+    observed_yields_low = observed_yields.copy()
+    for key in observed_yields:
+        observed_yields_low[key] //= 10
+    abcd = ABCD(observed_yields_low, signal_yields, signal_uncertainty)
+    abcd._hypotest_scan(calctype='toybased', ntoys=10)
