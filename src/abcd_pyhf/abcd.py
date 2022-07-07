@@ -237,6 +237,20 @@ class ABCD:
         poi_values, twice_nll_values = self.twice_nll()
         return plt.plot(poi_values, twice_nll_values)[0]
 
+    def _hypotest(self, poi_value, calctype='asymptotics', **kwargs):
+        return pyhf.infer.hypotest(
+            poi_value,
+            self.data,
+            self.model,
+            self.init_pars,
+            self.par_bounds,
+            self.fixed_params(),
+            calctype=calctype,
+            return_tail_probs=True,
+            return_expected_set=True,
+            **kwargs
+        )
+
     @functools.lru_cache()
     def _hypotest_scan(self, calctype='asymptotics', **kwargs):
         return hypotest_scan(
