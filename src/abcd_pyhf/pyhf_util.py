@@ -106,6 +106,7 @@ def get_init_pars(observed_yields, model):
         observed_yields[control_regions[1]] / background_normalization_estimate
     )
     init_pars = model.config.suggested_init()
+    init_pars[model.config.par_order.index(poi_name)] = 0
     init_pars[
         model.config.par_order.index(bkg_normalization_name)
     ] = background_normalization_estimate
