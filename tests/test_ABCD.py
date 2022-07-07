@@ -150,6 +150,11 @@ def test_twice_nll_plot():
     abcd.twice_nll_plot()
 
 
+def test_hypotest():
+    abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
+    abcd._hypotest(1)
+
+
 def test_hypotest_scan():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     abcd._hypotest_scan()
@@ -282,3 +287,25 @@ def test_toys():
         observed_yields_low[key] //= 10
     abcd = ABCD(observed_yields_low, signal_yields, signal_uncertainty)
     abcd._hypotest_scan(calctype='toybased', ntoys=10)
+
+
+def test_hypotest_special_case():
+    observed_yields_special_case = {
+        'A': 0,
+        'B': 15004,
+        'C': 441,
+        'D': 192036934,
+    }
+    signal_yields_special_case = {
+        'A': 0.13,
+        'B': 0.004,
+        'C': 0.00001,
+        'D': 0.00006,
+    }
+    signal_uncertainty_special_case = 0.02
+    abcd = ABCD(
+        observed_yields_special_case,
+        signal_yields_special_case,
+        signal_uncertainty_special_case,
+    )
+    abcd._hypotest(0)
