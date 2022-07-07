@@ -77,18 +77,18 @@ def test_fixed_poi_fit():
     observed_yields_copy['D'] += signal_yields['D']
     abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
     fixed_poi_fit = abcd._fixed_poi_fit(signal_yields['A'])
-    assert fixed_poi_fit[0][0] == signal_yields['A']
-    assert math.isclose(fixed_poi_fit[1][0], 0, abs_tol=1e-1)
+    assert fixed_poi_fit[abcd.model.config.par_names().index('mu')][0] == signal_yields['A']
+    assert math.isclose(fixed_poi_fit[abcd.model.config.par_names().index('systematic_uncertainty')][0], 0, abs_tol=1e-1)
     assert math.isclose(
-        fixed_poi_fit[2][0], observed_yields['A'], rel_tol=1e-2
+        fixed_poi_fit[abcd.model.config.par_names().index('mu_b')][0], observed_yields['A'], rel_tol=1e-2
     )
     assert math.isclose(
-        fixed_poi_fit[3][0],
+        fixed_poi_fit[abcd.model.config.par_names().index('tau_B')][0],
         observed_yields['B'] / observed_yields['A'],
         rel_tol=1e-2,
     )
     assert math.isclose(
-        fixed_poi_fit[4][0],
+        fixed_poi_fit[abcd.model.config.par_names().index('tau_C')][0],
         observed_yields['C'] / observed_yields['A'],
         rel_tol=1e-2,
     )
@@ -97,16 +97,16 @@ def test_fixed_poi_fit():
 def test_bkg_only_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert bkg_only_fit[0][0] == 0
-    assert bkg_only_fit[1][0] == 0
-    assert math.isclose(bkg_only_fit[2][0], observed_yields['A'], rel_tol=1e-2)
+    assert bkg_only_fit[abcd.model.config.par_names().index('mu')][0] == 0
+    assert bkg_only_fit[abcd.model.config.par_names().index('systematic_uncertainty')][0] == 0
+    assert math.isclose(bkg_only_fit[abcd.model.config.par_names().index('mu_b')][0], observed_yields['A'], rel_tol=1e-2)
     assert math.isclose(
-        bkg_only_fit[3][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_B')][0],
         observed_yields['B'] / observed_yields['A'],
         rel_tol=1e-2,
     )
     assert math.isclose(
-        bkg_only_fit[4][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_C')][0],
         observed_yields['C'] / observed_yields['A'],
         rel_tol=1e-2,
     )
@@ -115,14 +115,14 @@ def test_bkg_only_fit():
 def test_fit():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     fit = abcd.fit()
-    assert math.isclose(fit[0][0], 0, abs_tol=1e-1)
-    assert math.isclose(fit[1][0], 0, abs_tol=1e-1)
-    assert math.isclose(fit[2][0], observed_yields['A'], rel_tol=1e-2)
+    assert math.isclose(fit[abcd.model.config.par_names().index('mu')][0], 0, abs_tol=1e-1)
+    assert math.isclose(fit[abcd.model.config.par_names().index('systematic_uncertainty')][0], 0, abs_tol=1e-1)
+    assert math.isclose(fit[abcd.model.config.par_names().index('mu_b')][0], observed_yields['A'], rel_tol=1e-2)
     assert math.isclose(
-        fit[3][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2
+        fit[abcd.model.config.par_names().index('tau_B')][0], observed_yields['B'] / observed_yields['A'], rel_tol=1e-2
     )
     assert math.isclose(
-        fit[4][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2
+        fit[abcd.model.config.par_names().index('tau_C')][0], observed_yields['C'] / observed_yields['A'], rel_tol=1e-2
     )
 
 
@@ -189,18 +189,18 @@ def test_bkg_only_fit_very_small_expected_mu_b():
     observed_yields_copy['D'] *= 1000
     abcd = ABCD(observed_yields_copy, signal_yields, signal_uncertainty)
     bkg_only_fit = abcd.bkg_only_fit()
-    assert bkg_only_fit[0][0] == 0
-    assert bkg_only_fit[1][0] == 0
+    assert bkg_only_fit[abcd.model.config.par_names().index('mu')][0] == 0
+    assert bkg_only_fit[abcd.model.config.par_names().index('systematic_uncertainty')][0] == 0
     assert math.isclose(
-        bkg_only_fit[2][0], observed_yields_copy['A'], abs_tol=1e-1
+        bkg_only_fit[abcd.model.config.par_names().index('mu_b')][0], observed_yields_copy['A'], abs_tol=1e-1
     )
     assert math.isclose(
-        bkg_only_fit[3][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_B')][0],
         observed_yields_copy['D'] / observed_yields_copy['C'],
         rel_tol=1e-2,
     )
     assert math.isclose(
-        bkg_only_fit[4][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_C')][0],
         observed_yields_copy['D'] / observed_yields_copy['B'],
         rel_tol=1e-2,
     )
@@ -227,18 +227,18 @@ def test_bkg_only_fit_special_case():
         signal_uncertainty_special_case,
     )
     bkg_only_fit = abcd.bkg_only_fit()
-    assert bkg_only_fit[0][0] == 0
-    assert bkg_only_fit[1][0] == 0
+    assert bkg_only_fit[abcd.model.config.par_names().index('mu')][0] == 0
+    assert bkg_only_fit[abcd.model.config.par_names().index('systematic_uncertainty')][0] == 0
     assert math.isclose(
-        bkg_only_fit[2][0], observed_yields_special_case['A'], abs_tol=1e-1
+        bkg_only_fit[abcd.model.config.par_names().index('mu_b')][0], observed_yields_special_case['A'], abs_tol=1e-1
     )
     assert math.isclose(
-        bkg_only_fit[3][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_B')][0],
         observed_yields_special_case['D'] / observed_yields_special_case['C'],
         rel_tol=1e-2,
     )
     assert math.isclose(
-        bkg_only_fit[4][0],
+        bkg_only_fit[abcd.model.config.par_names().index('tau_C')][0],
         observed_yields_special_case['D'] / observed_yields_special_case['B'],
         rel_tol=1e-2,
     )
