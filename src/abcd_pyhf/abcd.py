@@ -15,13 +15,15 @@ from .pyhf_util import (
     get_init_pars,
     get_par_bounds,
     get_fixed_params,
+    fixed_poi_fit,
+    fit,
     fixed_poi_fit_scan,
     hypotest_scan,
     poi_upper_limit,
 )
 
 
-pyhf.set_backend('numpy', 'minuit')
+pyhf.set_backend(pyhf.default_backend, pyhf.optimize.scipy_optimizer(solver_options={'eps': 1e-7}))
 
 
 class ABCD:
@@ -69,38 +71,38 @@ class ABCD:
     def fixed_params(self, bkg_only=False):
         return get_fixed_params(self.model, bkg_only=bkg_only)
 
-    def _fixed_poi_fit(self, poi_value):
-        pars = pyhf.infer.mle.fixed_poi_fit(
+    def _fixed_poi_fit(self, poi_value, return_uncertainties=True):
+        pars = fixed_poi_fit(
             poi_value,
             data=self.data,
             pdf=self.model,
             init_pars=self.init_pars,
             par_bounds=self.par_bounds,
             fixed_params=self.fixed_params(),
-            return_uncertainties=True,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
-    def bkg_only_fit(self):
-        pars = pyhf.infer.mle.fixed_poi_fit(
+    def bkg_only_fit(self, return_uncertainties=True):
+        pars = fixed_poi_fit(
             poi_val=0,
             data=self.data,
             pdf=self.model,
             init_pars=self.init_pars,
             par_bounds=self.par_bounds,
             fixed_params=self.fixed_params(bkg_only=True),
-            return_uncertainties=True,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
-    def fit(self):
-        pars = pyhf.infer.mle.fit(
+    def fit(self, return_uncertainties=True):
+        pars = fit(
             data=self.data,
             pdf=self.model,
             init_pars=self.init_pars,
             par_bounds=self.par_bounds,
             fixed_params=self.fixed_params(),
-            return_uncertainties=True,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
@@ -120,7 +122,7 @@ class ABCD:
                 self.par_bounds,
                 self.fixed_params(),
             )
-            best_fit_pars = np.array(self.fit()).T[0]
+            best_fit_pars = np.array(self.fit(return_uncertainties=False))
             best_fit_twice_nll = pyhf.infer.mle.twice_nll(
                 pars=best_fit_pars, data=self.data, pdf=self.model
             )
