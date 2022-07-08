@@ -144,7 +144,7 @@ def get_par_bounds(observed_yields, model):
                 background_normalization_estimate
                 + 5 * math.sqrt(background_normalization_estimate)
             ),
-            5,
+            10,
         )
     poi_max = math.ceil(background_normalization_max)
     par_bounds = model.config.suggested_bounds()
@@ -171,6 +171,47 @@ def get_fixed_params(model, bkg_only=False):
             model.config.par_names().index(signal_uncertainty_name)
         ] = True
     return fixed_params
+
+
+def fixed_poi_fit(poi_val, data, pdf, init_pars, par_bounds, fixed_params, return_uncertainties):
+    if return_uncertainties:
+        backend, original_optimizer = pyhf.get_backend()
+        pyhf.set_backend(backend, pyhf.optimize.minuit_optimizer())
+
+    result = pyhf.infer.mle.fixed_poi_fit(
+        poi_val=poi_val,
+        data=data,
+        pdf=pdf,
+        init_pars=init_pars,
+        par_bounds=par_bounds,
+        fixed_params=fixed_params,
+        return_uncertainties=return_uncertainties
+    )
+
+    if return_uncertainties:
+        pyhf.set_backend(backend, original_optimizer)
+
+    return result
+
+
+def fit(data, pdf, init_pars, par_bounds, fixed_params, return_uncertainties):
+    if return_uncertainties:
+        backend, original_optimizer = pyhf.get_backend()
+        pyhf.set_backend(backend, pyhf.optimize.minuit_optimizer())
+
+    result = pyhf.infer.mle.fit(
+        data=data,
+        pdf=pdf,
+        init_pars=init_pars,
+        par_bounds=par_bounds,
+        fixed_params=fixed_params,
+        return_uncertainties=return_uncertainties
+    )
+
+    if return_uncertainties:
+        pyhf.set_backend(backend, original_optimizer)
+
+    return result
 
 
 def fixed_poi_fit_scan(
