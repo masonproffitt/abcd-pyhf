@@ -173,7 +173,15 @@ def get_fixed_params(model, bkg_only=False):
     return fixed_params
 
 
-def fixed_poi_fit(poi_val, data, pdf, init_pars, par_bounds, fixed_params, return_uncertainties):
+def fixed_poi_fit(
+    poi_val,
+    data,
+    pdf,
+    init_pars,
+    par_bounds,
+    fixed_params,
+    return_uncertainties,
+):
     if return_uncertainties:
         backend, original_optimizer = pyhf.get_backend()
         pyhf.set_backend(backend, pyhf.optimize.minuit_optimizer())
@@ -185,7 +193,7 @@ def fixed_poi_fit(poi_val, data, pdf, init_pars, par_bounds, fixed_params, retur
         init_pars=init_pars,
         par_bounds=par_bounds,
         fixed_params=fixed_params,
-        return_uncertainties=return_uncertainties
+        return_uncertainties=return_uncertainties,
     )
 
     if return_uncertainties:
@@ -205,7 +213,7 @@ def fit(data, pdf, init_pars, par_bounds, fixed_params, return_uncertainties):
         init_pars=init_pars,
         par_bounds=par_bounds,
         fixed_params=fixed_params,
-        return_uncertainties=return_uncertainties
+        return_uncertainties=return_uncertainties,
     )
 
     if return_uncertainties:
@@ -256,10 +264,14 @@ def hypotest_scan(
         return_expected,
         return_expected_set,
     ]
-    starmap_args = zip(poi_values, *[[arg] * len(poi_values) for arg in other_args])
+    starmap_args = zip(
+        poi_values, *[[arg] * len(poi_values) for arg in other_args]
+    )
     starmap_kwargs = [kwargs] * len(poi_values)
     with multiprocessing.pool.Pool() as pool:
-        results = starmap_with_kwargs(pool, pyhf.infer.hypotest, starmap_args, starmap_kwargs)
+        results = starmap_with_kwargs(
+            pool, pyhf.infer.hypotest, starmap_args, starmap_kwargs
+        )
     cls_observed = []
     if return_tail_probs:
         tail_probs = []

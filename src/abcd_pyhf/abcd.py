@@ -22,7 +22,10 @@ from .pyhf_util import (
 )
 
 
-pyhf.set_backend(pyhf.default_backend, pyhf.optimize.scipy_optimizer(solver_options={'eps': 1e-6}))
+pyhf.set_backend(
+    pyhf.default_backend,
+    pyhf.optimize.scipy_optimizer(solver_options={'eps': 1e-6}),
+)
 
 
 class ABCD:
@@ -93,9 +96,13 @@ class ABCD:
     @property
     def model(self):
         if not hasattr(self, '_model'):
-            setattr(self, '_model', create_model(
-                self.signal_yields, self.signal_uncertainty, self.blinded
-            ))
+            setattr(
+                self,
+                '_model',
+                create_model(
+                    self.signal_yields, self.signal_uncertainty, self.blinded
+                ),
+            )
         return getattr(self, '_model')
 
     @property
@@ -297,7 +304,10 @@ class ABCD:
             Mu values and the corresponding CL_{s+b} values for each signal
             strength
         """
-        return self._hypotest_scan(calctype=calctype, **kwargs)[0], self._hypotest_scan(calctype=calctype, **kwargs)[2][0]
+        return (
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[2][0],
+        )
 
     def clb(self, calctype='asymptotics', **kwargs):
         """
@@ -315,7 +325,10 @@ class ABCD:
             Mu values and the corresponding CL_b values for each signal
             strength
         """
-        return self._hypotest_scan(calctype=calctype, **kwargs)[0], self._hypotest_scan(calctype=calctype, **kwargs)[2][1]
+        return (
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[2][1],
+        )
 
     def cls(self, calctype='asymptotics', **kwargs):
         """
@@ -358,7 +371,9 @@ class ABCD:
             Observed upper limit on mu and the expected upper limit band in the
             form: (-2 sigma, -1 sigma, median, +1 sigma, +2 sigma)
         """
-        poi, cls_observed, cls_expected_set = self.cls(calctype=calctype, **kwargs)
+        poi, cls_observed, cls_expected_set = self.cls(
+            calctype=calctype, **kwargs
+        )
         return poi_upper_limit(poi, cls_observed), [
             poi_upper_limit(poi, cls_expected)
             for cls_expected in cls_expected_set
@@ -379,6 +394,8 @@ class ABCD:
         pyhf.contrib.viz.brazil.BrazilBandCollection
             Artist containing the matplotlib.artist objects drawn
         """
-        mu, cls_observed, cls_expected_set = self.cls(calctype=calctype, **kwargs)
+        mu, cls_observed, cls_expected_set = self.cls(
+            calctype=calctype, **kwargs
+        )
         results = list(zip(cls_observed, cls_expected_set.T))
         return pyhf.contrib.viz.brazil.plot_results(mu, results)
