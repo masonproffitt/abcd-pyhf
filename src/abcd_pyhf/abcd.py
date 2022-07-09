@@ -22,7 +22,7 @@ from .pyhf_util import (
 )
 
 
-pyhf.set_backend(pyhf.default_backend, pyhf.optimize.scipy_optimizer(solver_options={'eps': 1e-7}))
+pyhf.set_backend(pyhf.default_backend, pyhf.optimize.scipy_optimizer(solver_options={'eps': 1e-6}))
 
 
 class ABCD:
