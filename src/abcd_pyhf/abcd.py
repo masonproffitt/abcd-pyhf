@@ -23,6 +23,47 @@ pyhf.set_backend('numpy', 'minuit')
 
 
 class ABCD:
+    """
+    An ABCD plane, including yields in data and signal and systematic
+    uncertainties
+
+    Parameters
+    ----------
+    observed_yields : dict
+        Number of events observed in each region, in {region_name: n_events}
+        format. The control region yields must be specified, but the signal
+        region yield is optional.
+    signal_yields : dict, optional
+        Signal event yield in each region, in {region_name: n_events} format.
+        Only the relative proportions matter; the overall normalization is
+        arbitrary.
+    signal_uncertainty : float, optional
+        Total fractional uncertainty of the signal yields
+
+    Attributes
+    ----------
+    observed_yields : dict
+        Number of events observed in each region, in {region_name: n_events}
+        format
+    signal_yields : dict or None
+        Signal event yield in each region, in {region_name: n_events} format.
+        Only the relative proportions matter; the overall normalization is
+        arbitrary.
+    signal_uncertainty : float or None
+        Total fractional uncertainty of the signal yields
+    blinded : bool
+        Whether the signal region is blinded or not. False if the observed
+        number of events in the signal region was provided, otherwise True.
+    model : pyhf.pdf.Model
+        pyhf model of this ABCD plane
+    data : list
+        pyhf data for this ABCD plane
+    init_pars : list
+        Initial parameter values
+    par_bounds : list
+        Parameter bounds
+    """
+
     def __init__(
         self, observed_yields, signal_yields=None, signal_uncertainty=None
     ):
@@ -65,6 +106,20 @@ class ABCD:
         return get_par_bounds(self.observed_yields, self.model)
 
     def fixed_params(self, bkg_only=False):
+        """
+        Identify which parameters are fixed
+
+        Parameters
+        ----------
+        bkg_only : bool, optional
+            Whether the signal strength should be fixed to zero or not
+
+        Returns
+        -------
+        list
+            A boolean value for each parameter: True if the parameter is fixed,
+            otherwise False
+        """
         return get_fixed_params(self.model, bkg_only=bkg_only)
 
     def _fixed_poi_fit(self, poi_value):
@@ -80,6 +135,14 @@ class ABCD:
         return pars
 
     def bkg_only_fit(self):
+        """
+        Perform a background-only fit to the observed yields
+
+        Returns
+        -------
+        numpy.ndarray
+            Fit value and its uncertainty for each parameter
+        """
         pars = pyhf.infer.mle.fixed_poi_fit(
             poi_val=0,
             data=self.data,
@@ -92,6 +155,14 @@ class ABCD:
         return pars
 
     def fit(self):
+        """
+        Perform a fit to the observed yields
+
+        Returns
+        -------
+        numpy.ndarray
+            Fit value and its uncertainty for each parameter
+        """
         pars = pyhf.infer.mle.fit(
             data=self.data,
             pdf=self.model,
@@ -134,9 +205,26 @@ class ABCD:
         return getattr(self, '_twice_nll_scan_result')
 
     def twice_nll(self):
+        """
+        Calculate the negative log-likelihood times two for a variety of signal strengths
+
+        Returns
+        -------
+        tuple
+            Mu values and the corresponding negative log-likelihoods times two
+            for each signal strength
+        """
         return self._twice_nll_scan()
 
     def twice_nll_plot(self):
+        """
+        Plot the negative log-likelihood times two versus signal strength
+
+        Returns
+        -------
+        matplotlib.lines.Line2D
+            Line representing the plotted data
+        """
         plt.xlabel(r'$\mu$')
         plt.xlim(
             0,
@@ -165,12 +253,39 @@ class ABCD:
         return getattr(self, '_hypotest_scan_result')
 
     def clsb(self):
+        """
+        Calculate CL_{s+b} for a variety of signal strengths
+
+        Returns
+        -------
+        tuple
+            Mu values and the corresponding CL_{s+b} values for each signal
+            strength
+        """
         return self._hypotest_scan()[0], self._hypotest_scan()[2][0]
 
     def clb(self):
+        """
+        Calculate CL_b for a variety of signal strengths
+
+        Returns
+        -------
+        tuple
+            Mu values and the corresponding CL_b values for each signal
+            strength
+        """
         return self._hypotest_scan()[0], self._hypotest_scan()[2][1]
 
     def cls(self):
+        """
+        Calculate CL_s for a variety of signal strengths
+
+        Returns
+        -------
+        tuple
+            Mu values and the corresponding CL_s values for each signal
+            strength
+        """
         return (
             self._hypotest_scan()[0],
             self._hypotest_scan()[1],
@@ -178,6 +293,20 @@ class ABCD:
         )
 
     def upper_limit(self, cl=0.95):
+        """
+        Calculate the upper limit on the signal strength
+
+        Parameters
+        ----------
+        cl : float, optional
+            Conflidence level of the upper limit
+
+        Returns
+        -------
+        tuple
+            Observed upper limit on mu and the expected upper limit band in the
+            form: (-2 sigma, -1 sigma, median, +1 sigma, +2 sigma)
+        """
         poi, cls_observed, cls_expected_set = self.cls()
         return poi_upper_limit(poi, cls_observed), [
             poi_upper_limit(poi, cls_expected)
@@ -185,6 +314,14 @@ class ABCD:
         ]
 
     def brazil_plot(self):
+        """
+        Make a Brazil plot of CL_s and its components versus signal strength
+
+        Returns
+        -------
+        pyhf.contrib.viz.brazil.BrazilBandCollection
+            Artist containing the matplotlib.artist objects drawn
+        """
         mu, cls_observed, cls_expected_set = self.cls()
         results = list(zip(cls_observed, cls_expected_set.T))
         return pyhf.contrib.viz.brazil.plot_results(mu, results)
