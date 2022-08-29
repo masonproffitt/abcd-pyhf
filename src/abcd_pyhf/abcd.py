@@ -187,4 +187,4 @@ class ABCD:
     def brazil_plot(self):
         mu, cls_observed, cls_expected_set = self.cls()
         results = list(zip(cls_observed, cls_expected_set.T))
-        pyhf.contrib.viz.brazil.plot_results(mu, results)
+        return pyhf.contrib.viz.brazil.plot_results(mu, results)
