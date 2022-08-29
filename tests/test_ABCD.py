@@ -147,7 +147,7 @@ def test_twice_nll():
 
 def test_twice_nll_plot():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.twice_nll_plot()
+    assert abcd.twice_nll_plot() is not None
 
 
 def test_hypotest_scan():
@@ -180,7 +180,7 @@ def test_upper_limit():
 
 def test_brazil_plot():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    abcd.brazil_plot()
+    assert abcd.brazil_plot() is not None
 
 
 # https://github.com/masonproffitt/abcd-pyhf/issues/14
