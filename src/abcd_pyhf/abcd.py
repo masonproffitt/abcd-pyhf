@@ -102,13 +102,6 @@ class ABCD:
         )
         return pars
 
-    def bkg_only_signal_region_estimate(self):
-        return tuple(
-            self.bkg_only_fit()[
-                self.model.config.par_order.index(bkg_normalization_name)
-            ]
-        )
-
     def _twice_nll_scan(self):
         if not hasattr(self, '_twice_nll_scan_result'):
             poi_values, pars_set = fixed_poi_fit_scan(
