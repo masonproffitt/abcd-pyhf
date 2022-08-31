@@ -7,7 +7,6 @@ import pyhf.contrib.viz.brazil
 from .pyhf_util import (
     signal_region,
     poi_name,
-    bkg_normalization_name,
     create_model,
     get_data,
     get_init_pars,
