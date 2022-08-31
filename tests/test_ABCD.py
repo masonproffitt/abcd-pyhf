@@ -126,15 +126,6 @@ def test_fit():
     )
 
 
-def test_bkg_only_signal_region_estimate():
-    abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
-    assert math.isclose(
-        abcd.bkg_only_signal_region_estimate()[0],
-        observed_yields['A'],
-        rel_tol=1e-2,
-    )
-
-
 def test_twice_nll_scan():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     abcd._twice_nll_scan()
