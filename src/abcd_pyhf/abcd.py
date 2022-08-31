@@ -205,7 +205,8 @@ class ABCD:
 
     def twice_nll(self):
         """
-        Calculate the negative log-likelihood times two for a variety of signal strengths
+        Calculate the negative log-likelihood times two for a variety of signal
+        strengths
 
         Returns
         -------
