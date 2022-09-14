@@ -1,38 +1,32 @@
 [![PyPI version](https://badge.fury.io/py/abcd-pyhf.svg)](https://badge.fury.io/py/abcd-pyhf)
 
-pyhf implementation of the ABCD method for background estimation
+`pyhf`-based implementation of the ABCD method for background estimation
 
-# Instructions for lxplus
+# Instructions for LXPLUS
 
-The code can be run on lxplus by following the instruction given below.
+The code can be run on LXPLUS by following the instructions below.
 
-First, set up your environment with default version of python 3: 
+Create a virtual Python environment:
 ```bash
-setupATLAS
-lsetup "python pilot-default"
+python3 -m venv abcd_pyhf
 ```
 
-Then create a virtual python environment:
+This will create a directory named `abcd_pyhf` that will contain all the necessary packages to run the code.
+Activate the virtual Python environment with the following command:
 ```bash
-python3 -m venv env
+source abcd_pyhf/bin/activate
 ```
 
-This will create a directory named `env` which will contain all the necessary packages to run the code. 
-Activate the virtual python environment with the following command:
+You can shut down the virtual Python environment at any time with the Bash command `deactivate`.
+You can later reactivate the environment by running the Bash command `source env/bin/activate`.
+
+To run the code, you will have to download the necessary packages in the Python environment (this only needs to be done once):
 ```bash
-source env/bin/activate
+pip install --upgrade pip
+pip install abcd_pyhf
 ```
 
-Any moment, you can shut down the virtual python environment with the bash command `deactivate`.
-You can later reactivate the environment by setting up the necessary python version on lxplus and 
-run the bash command `source env/bin/activate`.
-
-To run the code, you will have to download the necessary packages in the python environment (this only need to be done once):
-```bash
-pip install numpy matplotlib pyhf[contrib] iminuit
-```
-
-You can then use the package in python (in the `src` folder):
+You can then use the package in Python:
 ```python
 from abcd_pyhf import ABCD
 ```
