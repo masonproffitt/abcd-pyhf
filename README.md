@@ -8,22 +8,22 @@ The code can be run on LXPLUS by following the instructions below.
 
 Create a virtual Python environment:
 ```bash
-python3 -m venv abcd_pyhf
+python3 -m venv abcd-pyhf
 ```
 
-This will create a directory named `abcd_pyhf` that will contain all the necessary packages to run the code.
+This will create a directory named `abcd-pyhf` that will contain all the necessary packages to run the code.
 Activate the virtual Python environment with the following command:
 ```bash
-source abcd_pyhf/bin/activate
+source abcd-pyhf/bin/activate
 ```
 
 You can shut down the virtual Python environment at any time with the Bash command `deactivate`.
-You can later reactivate the environment by running the Bash command `source env/bin/activate`.
+You can later reactivate the environment by running the Bash command `source abcd-pyhf/bin/activate`.
 
 To run the code, you will have to download the necessary packages in the Python environment (this only needs to be done once):
 ```bash
 pip install --upgrade pip
-pip install abcd_pyhf
+pip install abcd-pyhf
 ```
 
 You can then use the package in Python:
