@@ -89,15 +89,9 @@ class ABCD:
 
     @property
     def model(self):
-        if not hasattr(self, '_model'):
-            setattr(
-                self,
-                '_model',
-                create_model(
-                    self.signal_yields, self.signal_uncertainty, self.blinded
-                ),
-            )
-        return getattr(self, '_model')
+        return create_model(
+            self.signal_yields, self.signal_uncertainty, self.blinded
+        )
 
     @property
     def data(self):
