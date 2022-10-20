@@ -5,6 +5,8 @@ import numpy as np
 
 import pyhf
 
+from .pool_utils import starmap_with_kwargs
+
 
 signal_region = 'A'
 control_regions = ['B', 'C', 'D']
@@ -104,6 +106,7 @@ def get_init_pars(observed_yields, model):
         observed_yields[control_regions[1]] / background_normalization_estimate
     )
     init_pars = model.config.suggested_init()
+    init_pars[model.config.par_order.index(poi_name)] = 0
     init_pars[
         model.config.par_order.index(bkg_normalization_name)
     ] = background_normalization_estimate
@@ -141,7 +144,7 @@ def get_par_bounds(observed_yields, model):
                 background_normalization_estimate
                 + 5 * math.sqrt(background_normalization_estimate)
             ),
-            25,
+            10,
         )
     poi_max = math.ceil(background_normalization_max)
     par_bounds = model.config.suggested_bounds()
@@ -165,9 +168,58 @@ def get_fixed_params(model, bkg_only=False):
     fixed_params = model.config.suggested_fixed()
     if bkg_only:
         fixed_params[
-            model.config.par_names().index(signal_uncertainty_name)
+            model.config.par_names.index(signal_uncertainty_name)
         ] = True
     return fixed_params
+
+
+def fixed_poi_fit(
+    poi_val,
+    data,
+    pdf,
+    init_pars,
+    par_bounds,
+    fixed_params,
+    return_uncertainties,
+):
+    if return_uncertainties:
+        backend, original_optimizer = pyhf.get_backend()
+        pyhf.set_backend(backend, pyhf.optimize.minuit_optimizer())
+
+    result = pyhf.infer.mle.fixed_poi_fit(
+        poi_val=poi_val,
+        data=data,
+        pdf=pdf,
+        init_pars=init_pars,
+        par_bounds=par_bounds,
+        fixed_params=fixed_params,
+        return_uncertainties=return_uncertainties,
+    )
+
+    if return_uncertainties:
+        pyhf.set_backend(backend, original_optimizer)
+
+    return result
+
+
+def fit(data, pdf, init_pars, par_bounds, fixed_params, return_uncertainties):
+    if return_uncertainties:
+        backend, original_optimizer = pyhf.get_backend()
+        pyhf.set_backend(backend, pyhf.optimize.minuit_optimizer())
+
+    result = pyhf.infer.mle.fit(
+        data=data,
+        pdf=pdf,
+        init_pars=init_pars,
+        par_bounds=par_bounds,
+        fixed_params=fixed_params,
+        return_uncertainties=return_uncertainties,
+    )
+
+    if return_uncertainties:
+        pyhf.set_backend(backend, original_optimizer)
+
+    return result
 
 
 def fixed_poi_fit_scan(
@@ -196,6 +248,7 @@ def hypotest_scan(
     return_tail_probs=False,
     return_expected=False,
     return_expected_set=False,
+    **kwargs
 ):
     if poi_values is None:
         poi_max = par_bounds[model.config.par_order.index(poi_name)][1]
@@ -211,10 +264,13 @@ def hypotest_scan(
         return_expected,
         return_expected_set,
     ]
+    starmap_args = zip(
+        poi_values, *[[arg] * len(poi_values) for arg in other_args]
+    )
+    starmap_kwargs = [kwargs] * len(poi_values)
     with multiprocessing.pool.Pool() as pool:
-        results = pool.starmap(
-            pyhf.infer.hypotest,
-            zip(poi_values, *[[arg] * len(poi_values) for arg in other_args]),
+        results = starmap_with_kwargs(
+            pool, pyhf.infer.hypotest, starmap_args, starmap_kwargs
         )
     cls_observed = []
     if return_tail_probs:

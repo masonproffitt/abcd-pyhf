@@ -1,3 +1,5 @@
+import functools
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,13 +14,12 @@ from .pyhf_util import (
     get_init_pars,
     get_par_bounds,
     get_fixed_params,
+    fixed_poi_fit,
+    fit,
     fixed_poi_fit_scan,
     hypotest_scan,
     poi_upper_limit,
 )
-
-
-pyhf.set_backend('numpy', 'minuit')
 
 
 class ABCD:
@@ -121,54 +122,61 @@ class ABCD:
         """
         return get_fixed_params(self.model, bkg_only=bkg_only)
 
-    def _fixed_poi_fit(self, poi_value):
-        pars = pyhf.infer.mle.fixed_poi_fit(
+    def _fixed_poi_fit(self, poi_value, return_uncertainties=True):
+        pars = fixed_poi_fit(
             poi_value,
             data=self.data,
             pdf=self.model,
             init_pars=self.init_pars,
             par_bounds=self.par_bounds,
             fixed_params=self.fixed_params(),
-            return_uncertainties=True,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
-    def bkg_only_fit(self):
+    def bkg_only_fit(self, return_uncertainties=True):
         """
         Perform a background-only fit to the observed yields
 
+        Parameters
+        ----------
+        return_uncertainties : bool, optional
+            Whether the uncertainties of the fit parameters should be returned
+            or not
+
         Returns
         -------
         numpy.ndarray
-            Fit value and its uncertainty for each parameter
+            Fit value for each parameter, optionally with its uncertainty
         """
-        pars = pyhf.infer.mle.fixed_poi_fit(
-            poi_val=0,
-            data=self.data,
-            pdf=self.model,
-            init_pars=self.init_pars,
-            par_bounds=self.par_bounds,
-            fixed_params=self.fixed_params(bkg_only=True),
-            return_uncertainties=True,
+        pars = self._fixed_poi_fit(
+            0,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
-    def fit(self):
+    def fit(self, return_uncertainties=True):
         """
         Perform a fit to the observed yields
+
+        Parameters
+        ----------
+        return_uncertainties : bool, optional
+            Whether the uncertainties of the fit parameters should be returned
+            or not
 
         Returns
         -------
         numpy.ndarray
-            Fit value and its uncertainty for each parameter
+            Fit value for each parameter, optionally with its uncertainty
         """
-        pars = pyhf.infer.mle.fit(
+        pars = fit(
             data=self.data,
             pdf=self.model,
             init_pars=self.init_pars,
             par_bounds=self.par_bounds,
             fixed_params=self.fixed_params(),
-            return_uncertainties=True,
+            return_uncertainties=return_uncertainties,
         )
         return pars
 
@@ -181,7 +189,7 @@ class ABCD:
                 self.par_bounds,
                 self.fixed_params(),
             )
-            best_fit_pars = np.array(self.fit()).T[0]
+            best_fit_pars = np.array(self.fit(return_uncertainties=False))
             best_fit_twice_nll = pyhf.infer.mle.twice_nll(
                 pars=best_fit_pars, data=self.data, pdf=self.model
             )
@@ -228,33 +236,51 @@ class ABCD:
         plt.xlabel(r'$\mu$')
         plt.xlim(
             0,
-            self.par_bounds[self.model.config.par_names().index(poi_name)][1],
+            self.par_bounds[self.model.config.par_names.index(poi_name)][1],
         )
         plt.ylabel(r'$-2 \ln L$')
         plt.ylim(0, 5)
         poi_values, twice_nll_values = self.twice_nll()
         return plt.plot(poi_values, twice_nll_values)[0]
 
-    def _hypotest_scan(self):
-        if not hasattr(self, '_hypotest_scan_result'):
-            setattr(
-                self,
-                '_hypotest_scan_result',
-                hypotest_scan(
-                    self.data,
-                    self.model,
-                    self.init_pars,
-                    self.par_bounds,
-                    self.fixed_params(),
-                    return_tail_probs=True,
-                    return_expected_set=True,
-                ),
-            )
-        return getattr(self, '_hypotest_scan_result')
+    @functools.lru_cache()
+    def _hypotest(self, poi_value, calctype='asymptotics', **kwargs):
+        return pyhf.infer.hypotest(
+            poi_value,
+            self.data,
+            self.model,
+            self.init_pars,
+            self.par_bounds,
+            self.fixed_params(),
+            calctype=calctype,
+            return_tail_probs=True,
+            return_expected_set=True,
+            **kwargs
+        )
 
-    def clsb(self):
+    @functools.lru_cache()
+    def _hypotest_scan(self, calctype='asymptotics', **kwargs):
+        return hypotest_scan(
+            self.data,
+            self.model,
+            self.init_pars,
+            self.par_bounds,
+            self.fixed_params(),
+            calctype=calctype,
+            return_tail_probs=True,
+            return_expected_set=True,
+            **kwargs
+        )
+
+    def clsb(self, calctype='asymptotics', **kwargs):
         """
         Calculate CL_{s+b} for a variety of signal strengths
+
+        Parameters
+        ----------
+        calctype : str, optional
+            The pyhf calculator type to use. Can be either "asymptotics" to use
+            asymptotic formulas or "toybased" to use pseudoexperiments.
 
         Returns
         -------
@@ -262,11 +288,20 @@ class ABCD:
             Mu values and the corresponding CL_{s+b} values for each signal
             strength
         """
-        return self._hypotest_scan()[0], self._hypotest_scan()[2][0]
+        return (
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[2][0],
+        )
 
-    def clb(self):
+    def clb(self, calctype='asymptotics', **kwargs):
         """
         Calculate CL_b for a variety of signal strengths
+
+        Parameters
+        ----------
+        calctype : str, optional
+            The pyhf calculator type to use. Can be either "asymptotics" to use
+            asymptotic formulas or "toybased" to use pseudoexperiments.
 
         Returns
         -------
@@ -274,11 +309,20 @@ class ABCD:
             Mu values and the corresponding CL_b values for each signal
             strength
         """
-        return self._hypotest_scan()[0], self._hypotest_scan()[2][1]
+        return (
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[2][1],
+        )
 
-    def cls(self):
+    def cls(self, calctype='asymptotics', **kwargs):
         """
         Calculate CL_s for a variety of signal strengths
+
+        Parameters
+        ----------
+        calctype : str, optional
+            The pyhf calculator type to use. Can be either "asymptotics" to use
+            asymptotic formulas or "toybased" to use pseudoexperiments.
 
         Returns
         -------
@@ -287,12 +331,12 @@ class ABCD:
             strength
         """
         return (
-            self._hypotest_scan()[0],
-            self._hypotest_scan()[1],
-            self._hypotest_scan()[3],
+            self._hypotest_scan(calctype=calctype, **kwargs)[0],
+            self._hypotest_scan(calctype=calctype, **kwargs)[1],
+            self._hypotest_scan(calctype=calctype, **kwargs)[3],
         )
 
-    def upper_limit(self, cl=0.95):
+    def upper_limit(self, cl=0.95, calctype='asymptotics', **kwargs):
         """
         Calculate the upper limit on the signal strength
 
@@ -300,6 +344,10 @@ class ABCD:
         ----------
         cl : float, optional
             Conflidence level of the upper limit
+        calctype : str, optional
+            The pyhf calculator type to use. Can be either "asymptotics" to use
+            asymptotic formulas or "toybased" to use pseudoexperiments.
+
 
         Returns
         -------
@@ -307,21 +355,31 @@ class ABCD:
             Observed upper limit on mu and the expected upper limit band in the
             form: (-2 sigma, -1 sigma, median, +1 sigma, +2 sigma)
         """
-        poi, cls_observed, cls_expected_set = self.cls()
+        poi, cls_observed, cls_expected_set = self.cls(
+            calctype=calctype, **kwargs
+        )
         return poi_upper_limit(poi, cls_observed), [
             poi_upper_limit(poi, cls_expected)
             for cls_expected in cls_expected_set
         ]
 
-    def brazil_plot(self):
+    def brazil_plot(self, calctype='asymptotics', **kwargs):
         """
         Make a Brazil plot of CL_s and its components versus signal strength
+
+        Parameters
+        ----------
+        calctype : str, optional
+            The pyhf calculator type to use. Can be either "asymptotics" to use
+            asymptotic formulas or "toybased" to use pseudoexperiments.
 
         Returns
         -------
         pyhf.contrib.viz.brazil.BrazilBandCollection
             Artist containing the matplotlib.artist objects drawn
         """
-        mu, cls_observed, cls_expected_set = self.cls()
+        mu, cls_observed, cls_expected_set = self.cls(
+            calctype=calctype, **kwargs
+        )
         results = list(zip(cls_observed, cls_expected_set.T))
         return pyhf.contrib.viz.brazil.plot_results(mu, results)
