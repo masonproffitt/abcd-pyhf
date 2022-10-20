@@ -253,7 +253,7 @@ class ABCD:
         plt.xlabel(r'$\mu$')
         plt.xlim(
             0,
-            self.par_bounds[self.model.config.par_names().index(poi_name)][1],
+            self.par_bounds[self.model.config.par_names.index(poi_name)][1],
         )
         plt.ylabel(r'$-2 \ln L$')
         plt.ylim(0, 5)

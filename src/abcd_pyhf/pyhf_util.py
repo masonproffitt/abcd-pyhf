@@ -168,7 +168,7 @@ def get_fixed_params(model, bkg_only=False):
     fixed_params = model.config.suggested_fixed()
     if bkg_only:
         fixed_params[
-            model.config.par_names().index(signal_uncertainty_name)
+            model.config.par_names.index(signal_uncertainty_name)
         ] = True
     return fixed_params
 
