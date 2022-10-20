@@ -149,13 +149,8 @@ class ABCD:
         numpy.ndarray
             Fit value for each parameter, optionally with its uncertainty
         """
-        pars = fixed_poi_fit(
-            poi_val=0,
-            data=self.data,
-            pdf=self.model,
-            init_pars=self.init_pars,
-            par_bounds=self.par_bounds,
-            fixed_params=self.fixed_params(bkg_only=True),
+        pars = self._fixed_poi_fit(
+            0,
             return_uncertainties=return_uncertainties,
         )
         return pars
