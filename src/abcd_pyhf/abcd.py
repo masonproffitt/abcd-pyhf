@@ -280,7 +280,9 @@ class ABCD:
         ----------
         calctype : str, optional
             The pyhf calculator type to use. Can be either "asymptotics" to use
-            asymptotic formulas or "toybased" to use pseudoexperiments.
+            asymptotic formulas or "toybased" to use pseudoexperiments. In the
+            "toybased" case, an additional "ntoys" parameter can be used to set
+            the number of pseudoexperiments used.
 
         Returns
         -------
@@ -301,7 +303,10 @@ class ABCD:
         ----------
         calctype : str, optional
             The pyhf calculator type to use. Can be either "asymptotics" to use
-            asymptotic formulas or "toybased" to use pseudoexperiments.
+            asymptotic formulas or "toybased" to use pseudoexperiments. In the
+            "toybased" case, an additional "ntoys" parameter can be used to set
+            the number of pseudoexperiments used.
+
 
         Returns
         -------
@@ -322,7 +327,10 @@ class ABCD:
         ----------
         calctype : str, optional
             The pyhf calculator type to use. Can be either "asymptotics" to use
-            asymptotic formulas or "toybased" to use pseudoexperiments.
+            asymptotic formulas or "toybased" to use pseudoexperiments. In the
+            "toybased" case, an additional "ntoys" parameter can be used to set
+            the number of pseudoexperiments used.
+
 
         Returns
         -------
@@ -346,7 +354,10 @@ class ABCD:
             Conflidence level of the upper limit
         calctype : str, optional
             The pyhf calculator type to use. Can be either "asymptotics" to use
-            asymptotic formulas or "toybased" to use pseudoexperiments.
+            asymptotic formulas or "toybased" to use pseudoexperiments. In the
+            "toybased" case, an additional "ntoys" parameter can be used to set
+            the number of pseudoexperiments used.
+
 
 
         Returns
@@ -371,7 +382,10 @@ class ABCD:
         ----------
         calctype : str, optional
             The pyhf calculator type to use. Can be either "asymptotics" to use
-            asymptotic formulas or "toybased" to use pseudoexperiments.
+            asymptotic formulas or "toybased" to use pseudoexperiments. In the
+            "toybased" case, an additional "ntoys" parameter can be used to set
+            the number of pseudoexperiments used.
+
 
         Returns
         -------
