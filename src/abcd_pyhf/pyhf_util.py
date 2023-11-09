@@ -44,18 +44,33 @@ bkg_modifiers = {
 
 
 def create_model(signal_yield, signal_uncertainty, blinded):
-    signal_modifiers = [
-        normfactor('mu'),
-        {
-            'name': signal_uncertainty_name,
-            'type': 'normsys',
-            'data': {
-                'hi': 1 + signal_uncertainty,
-                'lo': 1 - signal_uncertainty,
-            },
-        },
-    ]
     regions_to_include = control_regions if blinded is True else all_regions
+    signal_modifiers = {}
+    for region in regions_to_include:
+        if isinstance(signal_uncertainty, dict):
+            signal_modifiers[region] = [
+                normfactor('mu'),
+                {
+                    'name': signal_uncertainty_name + '_' + region,
+                    'type': 'normsys',
+                    'data': {
+                        'hi': 1 + signal_uncertainty[region],
+                        'lo': 1 - signal_uncertainty[region],
+                    },
+                },
+            ]
+        else:
+            signal_modifiers[region] = [
+                normfactor('mu'),
+                {
+                    'name': signal_uncertainty_name,
+                    'type': 'normsys',
+                    'data': {
+                        'hi': 1 + signal_uncertainty,
+                        'lo': 1 - signal_uncertainty,
+                    },
+                },
+            ]
     spec = {
         'channels': [
             {
@@ -66,7 +81,7 @@ def create_model(signal_yield, signal_uncertainty, blinded):
                         'data': [
                             signal_yield[region] / signal_yield[signal_region]
                         ],
-                        'modifiers': signal_modifiers,
+                        'modifiers': signal_modifiers[region],
                     },
                     {
                         'name': 'background',
@@ -167,9 +182,9 @@ def get_par_bounds(observed_yields, model):
 def get_fixed_params(model, bkg_only=False):
     fixed_params = model.config.suggested_fixed()
     if bkg_only:
-        fixed_params[
-            model.config.par_names.index(signal_uncertainty_name)
-        ] = True
+        for index, par_name in enumerate(model.config.par_names):
+            if par_name.startswith(signal_uncertainty_name):
+                fixed_params[index] = True
     return fixed_params
 
 
