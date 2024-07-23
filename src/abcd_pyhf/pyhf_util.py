@@ -116,15 +116,15 @@ def get_init_pars(observed_yields, model):
     )
     init_pars = model.config.suggested_init()
     init_pars[model.config.par_order.index(poi_name)] = 0
-    init_pars[
-        model.config.par_order.index(bkg_normalization_name)
-    ] = background_normalization_estimate
-    init_pars[
-        model.config.par_order.index(bkg_scale_factor_1_name)
-    ] = bkg_scale_factor_1_estimate
-    init_pars[
-        model.config.par_order.index(bkg_scale_factor_2_name)
-    ] = bkg_scale_factor_2_estimate
+    init_pars[model.config.par_order.index(bkg_normalization_name)] = (
+        background_normalization_estimate
+    )
+    init_pars[model.config.par_order.index(bkg_scale_factor_1_name)] = (
+        bkg_scale_factor_1_estimate
+    )
+    init_pars[model.config.par_order.index(bkg_scale_factor_2_name)] = (
+        bkg_scale_factor_2_estimate
+    )
     return init_pars
 
 
@@ -176,9 +176,9 @@ def get_par_bounds(observed_yields, model):
 def get_fixed_params(model, bkg_only=False):
     fixed_params = model.config.suggested_fixed()
     if bkg_only:
-        fixed_params[
-            model.config.par_names.index(signal_uncertainty_name)
-        ] = True
+        fixed_params[model.config.par_names.index(signal_uncertainty_name)] = (
+            True
+        )
     return fixed_params
 
 

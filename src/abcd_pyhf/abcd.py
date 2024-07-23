@@ -67,7 +67,11 @@ class ABCD:
     """
 
     def __init__(
-        self, observed_yields, signal_yields=None, signal_uncertainty=None, background_uncertainty=None,
+        self,
+        observed_yields,
+        signal_yields=None,
+        signal_uncertainty=None,
+        background_uncertainty=None,
     ):
         self._observed_yields = observed_yields
         self._signal_yields = signal_yields
@@ -97,7 +101,10 @@ class ABCD:
     @property
     def model(self):
         return create_model(
-            self.signal_yields, self.signal_uncertainty, self.background_uncertainty, self.blinded
+            self.signal_yields,
+            self.signal_uncertainty,
+            self.background_uncertainty,
+            self.blinded,
         )
 
     @property
