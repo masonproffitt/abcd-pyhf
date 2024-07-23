@@ -83,7 +83,7 @@ def test_fixed_poi_fit():
     )
     assert math.isclose(
         fixed_poi_fit[
-            abcd.model.config.par_names.index('systematic_uncertainty')
+            abcd.model.config.par_names.index('signal_uncertainty')
         ][0],
         0,
         abs_tol=1e-1,
@@ -111,7 +111,7 @@ def test_bkg_only_fit():
     assert bkg_only_fit[abcd.model.config.par_names.index('mu')][0] == 0
     assert (
         bkg_only_fit[
-            abcd.model.config.par_names.index('systematic_uncertainty')
+            abcd.model.config.par_names.index('signal_uncertainty')
         ][0]
         == 0
     )
@@ -139,7 +139,7 @@ def test_fit():
         fit[abcd.model.config.par_names.index('mu')][0], 0, abs_tol=1e-1
     )
     assert math.isclose(
-        fit[abcd.model.config.par_names.index('systematic_uncertainty')][0],
+        fit[abcd.model.config.par_names.index('signal_uncertainty')][0],
         0,
         abs_tol=1e-1,
     )
@@ -231,7 +231,7 @@ def test_bkg_only_fit_very_small_expected_mu_b():
     assert bkg_only_fit[abcd.model.config.par_names.index('mu')][0] == 0
     assert (
         bkg_only_fit[
-            abcd.model.config.par_names.index('systematic_uncertainty')
+            abcd.model.config.par_names.index('signal_uncertainty')
         ][0]
         == 0
     )
@@ -276,7 +276,7 @@ def test_bkg_only_fit_special_case():
     assert bkg_only_fit[abcd.model.config.par_names.index('mu')][0] == 0
     assert (
         bkg_only_fit[
-            abcd.model.config.par_names.index('systematic_uncertainty')
+            abcd.model.config.par_names.index('signal_uncertainty')
         ][0]
         == 0
     )
