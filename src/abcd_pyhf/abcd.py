@@ -71,7 +71,7 @@ class ABCD:
         observed_yields,
         signal_yields=None,
         signal_uncertainty=None,
-        background_uncertainty=None,
+        background_uncertainty=0.0,
     ):
         self._observed_yields = observed_yields
         self._signal_yields = signal_yields
