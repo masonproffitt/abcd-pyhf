@@ -13,7 +13,8 @@ control_regions = ['B', 'C', 'D']
 all_regions = [signal_region] + control_regions
 
 poi_name = 'mu'
-signal_uncertainty_name = 'systematic_uncertainty'
+signal_uncertainty_name = 'signal_uncertainty'
+bkg_uncertainty_name = 'background_uncertainty'
 
 bkg_normalization_name = 'mu_b'
 bkg_scale_factor_1_name = 'tau_B'
@@ -24,26 +25,7 @@ def normfactor(name):
     return {'name': name, 'type': 'normfactor', 'data': None}
 
 
-bkg_normalization = normfactor(bkg_normalization_name)
-bkg_modifiers = {
-    signal_region: [bkg_normalization],
-    control_regions[0]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_1_name),
-    ],
-    control_regions[1]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_2_name),
-    ],
-    control_regions[2]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_1_name),
-        normfactor(bkg_scale_factor_2_name),
-    ],
-}
-
-
-def create_model(signal_yield, signal_uncertainty, blinded):
+def create_model(signal_yield, signal_uncertainty, bkg_uncertainty, blinded):
     signal_modifiers = [
         normfactor('mu'),
         {
@@ -55,6 +37,33 @@ def create_model(signal_yield, signal_uncertainty, blinded):
             },
         },
     ]
+    bkg_normalization = normfactor(bkg_normalization_name)
+    bkg_modifiers = {
+        signal_region: [
+            bkg_normalization,
+            {
+                'name': bkg_uncertainty_name,
+                'type': 'normsys',
+                'data': {
+                    'hi': 1 + bkg_uncertainty,
+                    'lo': 1 - bkg_uncertainty,
+                },
+            },
+        ],
+        control_regions[0]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_1_name),
+        ],
+        control_regions[1]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_2_name),
+        ],
+        control_regions[2]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_1_name),
+            normfactor(bkg_scale_factor_2_name),
+        ],
+    }
     regions_to_include = control_regions if blinded is True else all_regions
     spec = {
         'channels': [
