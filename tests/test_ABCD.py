@@ -11,6 +11,8 @@ signal_yields = {'A': 35, 'B': 7, 'C': 5, 'D': 1}
 
 signal_uncertainty = 0.1
 
+background_uncertainty = 0.05
+
 
 def test_init():
     assert ABCD(observed_yields, signal_yields, signal_uncertainty) is not None
@@ -29,6 +31,11 @@ def test_signal_yields():
 def test_signal_uncertainty():
     abcd = ABCD(observed_yields, signal_yields, signal_uncertainty)
     assert abcd.signal_uncertainty == signal_uncertainty
+
+
+def test_background_uncertainty():
+    abcd = ABCD(observed_yields, signal_yields, signal_uncertainty, background_uncertainty)
+    assert abcd.background_uncertainty == background_uncertainty
 
 
 def test_blinded():
