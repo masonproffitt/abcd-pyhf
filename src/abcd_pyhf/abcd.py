@@ -39,6 +39,8 @@ class ABCD:
         arbitrary.
     signal_uncertainty : float, optional
         Total fractional uncertainty of the signal yields
+    background_uncertainty : float, optional
+        Total fractional uncertainty of the background estimation
 
     Attributes
     ----------
@@ -65,11 +67,16 @@ class ABCD:
     """
 
     def __init__(
-        self, observed_yields, signal_yields=None, signal_uncertainty=None
+        self,
+        observed_yields,
+        signal_yields=None,
+        signal_uncertainty=None,
+        background_uncertainty=0.0,
     ):
         self._observed_yields = observed_yields
         self._signal_yields = signal_yields
         self._signal_uncertainty = signal_uncertainty
+        self._background_uncertainty = background_uncertainty
 
     @property
     def observed_yields(self):
@@ -84,13 +91,20 @@ class ABCD:
         return self._signal_uncertainty
 
     @property
+    def background_uncertainty(self):
+        return self._background_uncertainty
+
+    @property
     def blinded(self):
         return signal_region not in self.observed_yields
 
     @property
     def model(self):
         return create_model(
-            self.signal_yields, self.signal_uncertainty, self.blinded
+            self.signal_yields,
+            self.signal_uncertainty,
+            self.background_uncertainty,
+            self.blinded,
         )
 
     @property

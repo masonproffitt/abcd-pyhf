@@ -13,7 +13,8 @@ control_regions = ['B', 'C', 'D']
 all_regions = [signal_region] + control_regions
 
 poi_name = 'mu'
-signal_uncertainty_name = 'systematic_uncertainty'
+signal_uncertainty_name = 'signal_uncertainty'
+bkg_uncertainty_name = 'background_uncertainty'
 
 bkg_normalization_name = 'mu_b'
 bkg_scale_factor_1_name = 'tau_B'
@@ -24,26 +25,7 @@ def normfactor(name):
     return {'name': name, 'type': 'normfactor', 'data': None}
 
 
-bkg_normalization = normfactor(bkg_normalization_name)
-bkg_modifiers = {
-    signal_region: [bkg_normalization],
-    control_regions[0]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_1_name),
-    ],
-    control_regions[1]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_2_name),
-    ],
-    control_regions[2]: [
-        bkg_normalization,
-        normfactor(bkg_scale_factor_1_name),
-        normfactor(bkg_scale_factor_2_name),
-    ],
-}
-
-
-def create_model(signal_yield, signal_uncertainty, blinded):
+def create_model(signal_yield, signal_uncertainty, bkg_uncertainty, blinded):
     signal_modifiers = [
         normfactor('mu'),
         {
@@ -55,6 +37,33 @@ def create_model(signal_yield, signal_uncertainty, blinded):
             },
         },
     ]
+    bkg_normalization = normfactor(bkg_normalization_name)
+    bkg_modifiers = {
+        signal_region: [
+            bkg_normalization,
+            {
+                'name': bkg_uncertainty_name,
+                'type': 'normsys',
+                'data': {
+                    'hi': 1 + bkg_uncertainty,
+                    'lo': 1 - bkg_uncertainty,
+                },
+            },
+        ],
+        control_regions[0]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_1_name),
+        ],
+        control_regions[1]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_2_name),
+        ],
+        control_regions[2]: [
+            bkg_normalization,
+            normfactor(bkg_scale_factor_1_name),
+            normfactor(bkg_scale_factor_2_name),
+        ],
+    }
     regions_to_include = control_regions if blinded is True else all_regions
     spec = {
         'channels': [
@@ -107,15 +116,15 @@ def get_init_pars(observed_yields, model):
     )
     init_pars = model.config.suggested_init()
     init_pars[model.config.par_order.index(poi_name)] = 0
-    init_pars[
-        model.config.par_order.index(bkg_normalization_name)
-    ] = background_normalization_estimate
-    init_pars[
-        model.config.par_order.index(bkg_scale_factor_1_name)
-    ] = bkg_scale_factor_1_estimate
-    init_pars[
-        model.config.par_order.index(bkg_scale_factor_2_name)
-    ] = bkg_scale_factor_2_estimate
+    init_pars[model.config.par_order.index(bkg_normalization_name)] = (
+        background_normalization_estimate
+    )
+    init_pars[model.config.par_order.index(bkg_scale_factor_1_name)] = (
+        bkg_scale_factor_1_estimate
+    )
+    init_pars[model.config.par_order.index(bkg_scale_factor_2_name)] = (
+        bkg_scale_factor_2_estimate
+    )
     return init_pars
 
 
@@ -167,9 +176,9 @@ def get_par_bounds(observed_yields, model):
 def get_fixed_params(model, bkg_only=False):
     fixed_params = model.config.suggested_fixed()
     if bkg_only:
-        fixed_params[
-            model.config.par_names.index(signal_uncertainty_name)
-        ] = True
+        fixed_params[model.config.par_names.index(signal_uncertainty_name)] = (
+            True
+        )
     return fixed_params
 
 
