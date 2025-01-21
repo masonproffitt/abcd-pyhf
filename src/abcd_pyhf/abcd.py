@@ -53,6 +53,8 @@ class ABCD:
         arbitrary.
     signal_uncertainty : float or None
         Total fractional uncertainty of the signal yields
+    background_uncertainty : float or None
+        Total fractional uncertainty of the background estimation
     blinded : bool
         Whether the signal region is blinded or not. False if the observed
         number of events in the signal region was provided, otherwise True.
